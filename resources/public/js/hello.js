@@ -31232,6 +31232,17 @@ cljs.core.find_macros_ns = function cljs$core$find_macros_ns(ns) {
 cljs.core.ns_name = function cljs$core$ns_name(ns_obj) {
   return ns_obj.name;
 };
-goog.provide("hello_world.hello");
+goog.provide("grep");
 goog.require("cljs.core");
-document.write("\x3cp\x3eHello, world!\x3c/p\x3e");
+grep.doc_ready_handler = function grep$doc_ready_handler() {
+  var ready_state = document.readyState;
+  if (cljs.core._EQ_.call(null, "complete", ready_state)) {
+    return console.log("page ready");
+  } else {
+    return null;
+  }
+};
+grep.on_doc_ready = function grep$on_doc_ready() {
+  return document["onreadystatechange"] = grep.doc_ready_handler;
+};
+grep.on_doc_ready.call(null);
