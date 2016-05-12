@@ -11,7 +11,7 @@
   :cljsbuild
   {:builds
    [{:compiler
-     {:output-to "resources/public/js/grep.js",
-      :optimizations :simple,
-      :pretty-print true},
+     {:output-to "resources/public/js/grep.js"
+      :optimizations :whitespace
+      :pretty-print true}
      :source-paths ["src/cljs"]}]})
