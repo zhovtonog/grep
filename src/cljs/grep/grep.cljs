@@ -1,7 +1,6 @@
 (ns grep.grep
   (:use [jayq.core :only [$ css html document-ready ajax]]
-        [grep.ajax :only [getRes]]))
-
+        [grep.ajax :only [getRes getData]]))
 
 (def state (atom {}))
 (def Game window.Game)
@@ -31,10 +30,16 @@
     (l (clj->js @s))
     ))
 
+(defn initStatic [state]
+  (let [game (js->clj window.Game)]
+    (swap! state assoc
+           :csrf (get game "csrfToken")
+           :townId  (get game "townId"))
+  ))
 
 (def dd {:key "val" :key2 "val2"})
 
-(defn testajj [obj]
+(defn testajj [obj st]
   (do
     (.log js/console "start req")
     (ajax "./api/res.json"
@@ -49,7 +54,21 @@
 
 
 
-;(jl (-> cData :json :backbone :collections))
+(defn getFarmList [obj]
+  (loop [ress []
+             ff obj]
+          (if (< (count ff) 1)
+            ress
+            (recur (conj ress (-> (first ff) :d :farm_town_id)) (rest ff))
+
+        )))
+
+(defn getDataOfClass [accData id]
+  (let [collection (-> accData :json :backbone :collections)
+        className (filterv #(= (get % :class_name) id) collection)
+        data (filter #(= (-> % :d :relation_status) 1) (-> (get className 0) :data))]
+
+    data))
 
 
 (defn parseDat [data]
@@ -59,18 +78,19 @@
 
     (jl farmCollection)
      (jl canFarm)
-      (mapv (fn [data] (jl  (-> data :d :farm_town_id))) canFarm)
-      (loop [res []
-             f canFarm]
-        (if (> (count f) 0)
-          (recur (conj res (-> canFarm first :d :farm_town_id)) (rest canFarm))
-          (jl res)))
-
-
-
+      ;(mapv (fn [data] (jl  (-> data :d :farm_town_id))) canFarm)
+      (jl (getFarmList canFarm))
     ))
 
-(parseDat cData)
+
+(defn initFarm [state data]
+  (let [farmList (getFarmList (getDataOfClass data "FarmTownPlayerRelations"))]
+  (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})))
+
+
+;(initFarm state cData)
+
+;(jl state)
 
 
 ;(-> % :d :relation_status)
@@ -95,7 +115,12 @@
 
 
 
-
+(defn qq [data]
+  (do
+    (l "get data good")
+  (l data)
+    )
+  )
 
 
 
@@ -110,7 +135,13 @@
 
 (defn startBot[]
   (do
-    (init state Game Data)))
+    ;(init state Game Data)
+    (-> state
+        (initStatic)
+        (getData qq)
+        ;(initFarm Data)
+        (jl))
+    ))
 
 (document-ready (startBot))
 
