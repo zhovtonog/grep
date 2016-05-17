@@ -34670,7 +34670,22 @@ grep.grep.l = function grep$grep$l(data) {
 grep.grep.jl = function grep$grep$jl(data) {
   return console.log(cljs.core.clj__GT_js.call(null, data));
 };
+grep.grep.derefjl = function grep$grep$derefjl(data) {
+  return console.log(cljs.core.clj__GT_js.call(null, cljs.core.deref.call(null, data)));
+};
 grep.grep.dd = new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "key", "key", -1516042587), "val", new cljs.core.Keyword(null, "key2", "key2", 1144654858), "val2"], null);
+grep.grep.pp = function grep$grep$pp(obj) {
+  grep.grep.l.call(null, cljs.core.clj__GT_js.call(null, obj));
+  return obj;
+};
+grep.grep.qq = function grep$grep$qq(data) {
+  grep.grep.l.call(null, "get data good");
+  return grep.grep.l.call(null, data);
+};
+grep.grep.startFarm = function grep$grep$startFarm(state) {
+  grep.grep.jl.call(null, cljs.core.deref.call(null, state));
+  return state;
+};
 grep.grep.getFarmList = function grep$grep$getFarmList(obj) {
   var ress = cljs.core.PersistentVector.EMPTY;
   var ff = obj;
@@ -34678,10 +34693,10 @@ grep.grep.getFarmList = function grep$grep$getFarmList(obj) {
     if (cljs.core.count.call(null, ff) < 1) {
       return ress;
     } else {
-      var G__9172 = cljs.core.conj.call(null, ress, (new cljs.core.Keyword(null, "farm_town_id", "farm_town_id", 1656833968)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "d", "d", 1972142424)).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null, ff))));
-      var G__9173 = cljs.core.rest.call(null, ff);
-      ress = G__9172;
-      ff = G__9173;
+      var G__8626 = cljs.core.conj.call(null, ress, (new cljs.core.Keyword(null, "farm_town_id", "farm_town_id", 1656833968)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "d", "d", 1972142424)).cljs$core$IFn$_invoke$arity$1(cljs.core.first.call(null, ff))));
+      var G__8627 = cljs.core.rest.call(null, ff);
+      ress = G__8626;
+      ff = G__8627;
       continue;
     }
     break;
@@ -34690,13 +34705,13 @@ grep.grep.getFarmList = function grep$grep$getFarmList(obj) {
 grep.grep.getDataOfClass = function grep$grep$getDataOfClass(accData, id) {
   var collection = (new cljs.core.Keyword(null, "collections", "collections", -2114643505)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "backbone", "backbone", 1943075380)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "json", "json", 1279968570)).cljs$core$IFn$_invoke$arity$1(accData)));
   var className = cljs.core.filterv.call(null, function(collection) {
-    return function(p1__9174_SHARP_) {
-      return cljs.core._EQ_.call(null, cljs.core.get.call(null, p1__9174_SHARP_, new cljs.core.Keyword(null, "class_name", "class_name", 1946637862)), id);
+    return function(p1__8628_SHARP_) {
+      return cljs.core._EQ_.call(null, cljs.core.get.call(null, p1__8628_SHARP_, new cljs.core.Keyword(null, "class_name", "class_name", 1946637862)), id);
     };
   }(collection), collection);
   var data = cljs.core.filter.call(null, function(collection, className) {
-    return function(p1__9175_SHARP_) {
-      return cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "relation_status", "relation_status", -1336254268)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "d", "d", 1972142424)).cljs$core$IFn$_invoke$arity$1(p1__9175_SHARP_)), 1);
+    return function(p1__8629_SHARP_) {
+      return cljs.core._EQ_.call(null, (new cljs.core.Keyword(null, "relation_status", "relation_status", -1336254268)).cljs$core$IFn$_invoke$arity$1((new cljs.core.Keyword(null, "d", "d", 1972142424)).cljs$core$IFn$_invoke$arity$1(p1__8629_SHARP_)), 1);
     };
   }(collection, className), (new cljs.core.Keyword(null, "data", "data", -232669377)).cljs$core$IFn$_invoke$arity$1(cljs.core.get.call(null, className, 0)));
   return data;
@@ -34705,14 +34720,6 @@ grep.grep.initFarm = function grep$grep$initFarm(state, data) {
   var farmList = grep.grep.getFarmList.call(null, grep.grep.getDataOfClass.call(null, data, "FarmTownPlayerRelations"));
   cljs.core.swap_BANG_.call(null, state, cljs.core.assoc, new cljs.core.Keyword(null, "farm", "farm", 1490097503), new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null, "farmList", "farmList", -469198675), farmList, new cljs.core.Keyword(null, "action_at", "action_at", -885458569), (new Date).getTime()], null));
   return state;
-};
-grep.grep.pp = function grep$grep$pp(obj) {
-  grep.grep.l.call(null, cljs.core.clj__GT_js.call(null, obj));
-  return obj;
-};
-grep.grep.qq = function grep$grep$qq(data) {
-  grep.grep.l.call(null, "get data good");
-  return grep.grep.l.call(null, data);
 };
 grep.grep.applyData = function grep$grep$applyData(state, data) {
   return grep.grep.initFarm.call(null, state, data);
@@ -34726,6 +34733,6 @@ grep.grep.initData = function grep$grep$initData(state) {
   return grep.grep.applyData.call(null, state, grep.grep.cData);
 };
 grep.grep.startBot = function grep$grep$startBot() {
-  return grep.grep.jl.call(null, grep.grep.initData.call(null, grep.grep.initStatic.call(null, grep.grep.state)));
+  return grep.grep.derefjl.call(null, grep.grep.startFarm.call(null, grep.grep.initData.call(null, grep.grep.initStatic.call(null, grep.grep.state))));
 };
 jayq.core.document_ready.call(null, grep.grep.startBot.call(null));

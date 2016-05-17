@@ -15,6 +15,9 @@
 (defn jl [data]
   (.log js/console (clj->js data)))
 
+(defn derefjl [data]
+  (.log js/console (clj->js @data)))
+
 
 (comment (defn init [state Game Data]
   (let [s state
@@ -31,20 +34,7 @@
 (def dd {:key "val" :key2 "val2"})
 
 
-(defn getFarmList [obj]
-  (loop [ress []
-             ff obj]
-          (if (< (count ff) 1)
-            ress
-            (recur (conj ress (-> (first ff) :d :farm_town_id)) (rest ff))
 
-        )))
-
-(defn getDataOfClass [accData id]
-  (let [collection (-> accData :json :backbone :collections)
-        className (filterv #(= (get % :class_name) id) collection)
-        data (filter #(= (-> % :d :relation_status) 1) (-> (get className 0) :data))]
-    data))
 
 
 (comment (defn parseDat [data]
@@ -59,11 +49,7 @@
     )))
 
 
-(defn initFarm [state data]
-  (let [farmList (getFarmList (getDataOfClass data "FarmTownPlayerRelations"))]
-    (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})
-    state
-    ))
+
 
 
 ;(initFarm state cData)
@@ -111,6 +97,37 @@
 
 ;(l (clj->js @a
 
+
+(defn startFarm [state]
+  (do
+  (jl @state)
+    state
+    ))
+
+(defn getFarmList [obj]
+  (loop [ress []
+             ff obj]
+          (if (< (count ff) 1)
+            ress
+            (recur (conj ress (-> (first ff) :d :farm_town_id)) (rest ff))
+
+        )))
+
+(defn getDataOfClass [accData id]
+  (let [collection (-> accData :json :backbone :collections)
+        className (filterv #(= (get % :class_name) id) collection)
+        data (filter #(= (-> % :d :relation_status) 1) (-> (get className 0) :data))]
+    data))
+
+
+(defn initFarm [state data]
+  (let [farmList (getFarmList (getDataOfClass data "FarmTownPlayerRelations"))]
+    (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})
+    state
+    ))
+
+
+
 (defn applyData [state data]
   (initFarm state data)
 )
@@ -134,9 +151,14 @@
     (-> state
         (initStatic)
         (initData)
+
+
+
+
+        (startFarm)
         ;(getData qq)
         ;(initFarm Data)
-        (jl))
+        (derefjl))
     ))
 
 (document-ready (startBot))
