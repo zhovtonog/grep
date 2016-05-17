@@ -16,42 +16,19 @@
   (.log js/console (clj->js data)))
 
 
-(defn init [state Game Data]
+(comment (defn init [state Game Data]
   (let [s state
         g (js->clj Game)
         d (js->clj Data)]
-    ;(l (pr-str g))
-    ;(l (get g "csrfToken"))
     (swap! s assoc
            :csrf (get g "csrfToken")
            :townId  (get g "townId"))
-    ;(l (get d "json"))
-    ;(l Game)
     (l (clj->js @s))
-    ))
+    )))
 
-(defn initStatic [state]
-  (let [game (js->clj window.Game)]
-    (swap! state assoc
-           :csrf (get game "csrfToken")
-           :townId  (get game "townId"))
-  ))
+
 
 (def dd {:key "val" :key2 "val2"})
-
-(defn testajj [obj st]
-  (do
-    (.log js/console "start req")
-    (ajax "./api/res.json"
-          {:dataType "json"
-           :type "POST"
-           :async false
-           :success  (fn [data] (do
-                                  (l (clj->js obj))
-                                  obj))
-           :error (fn [data] (log js/console data))
-           })))
-
 
 
 (defn getFarmList [obj]
@@ -67,11 +44,10 @@
   (let [collection (-> accData :json :backbone :collections)
         className (filterv #(= (get % :class_name) id) collection)
         data (filter #(= (-> % :d :relation_status) 1) (-> (get className 0) :data))]
-
     data))
 
 
-(defn parseDat [data]
+(comment (defn parseDat [data]
   (let [farmCollection (-> data :json :backbone :collections)
         farmList (filterv #(= (get % :class_name) "FarmTownPlayerRelations") farmCollection)
         canFarm (filter #(= (-> % :d :relation_status) 1) (-> (get farmList 0) :data))]
@@ -80,12 +56,14 @@
      (jl canFarm)
       ;(mapv (fn [data] (jl  (-> data :d :farm_town_id))) canFarm)
       (jl (getFarmList canFarm))
-    ))
+    )))
 
 
 (defn initFarm [state data]
   (let [farmList (getFarmList (getDataOfClass data "FarmTownPlayerRelations"))]
-  (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})))
+    (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})
+    state
+    ))
 
 
 ;(initFarm state cData)
@@ -131,14 +109,32 @@
 ;(swap! state assoc-in [:key3 :qq] "gggggg")
 
 
-;(l (clj->js @a))
+;(l (clj->js @a
+
+(defn applyData [state data]
+  (initFarm state data)
+)
+
+(defn initStatic [state]
+  (let [game (js->clj window.Game)]
+    (swap! state assoc
+           :csrf (get game "csrfToken")
+           :townId  (get game "townId"))
+    state
+
+  ))
+
+
+(defn initData [state]
+  (applyData state cData))
 
 (defn startBot[]
   (do
     ;(init state Game Data)
     (-> state
         (initStatic)
-        (getData qq)
+        (initData)
+        ;(getData qq)
         ;(initFarm Data)
         (jl))
     ))

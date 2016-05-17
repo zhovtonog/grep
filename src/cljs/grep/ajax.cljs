@@ -18,6 +18,7 @@
     (ajax (str "/game/data?town_id=" (:townId state) "&action=get&h=" (:csrf state))
           {:dataType "json"
            :type "POST"
+           :async false
            :data (str "json=%7B%22types%22%3A%5B%7B%22type%22%3A%22map%22%2C%22param%22%3A%7B%22x%22%3A14%2C%22y%22%3A1%7D%7D%2C%7B%22type%22%3A%22bar%22%7D%2C%7B%22type%22%3A%22backbone%22%7D%5D%2C%22town_id%22%3A" (:townId state) "%2C%22nl_init%22%3Afalse%7D" )
            :success  (fn [data] (callbeck data))})))
 
