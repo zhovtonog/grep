@@ -1,167 +1,88 @@
 (ns grep.grep
-  (:use [jayq.core :only [$ css html document-ready ajax]]
-        [grep.ajax :only [getRes getData]]))
+  (:use [grep.log :only [l jl derefjl]]
+        [jayq.core :only [$ css html document-ready ajax]]
+        [grep.ajax :only [getData]]
+        [grep.initialed :only [FarmTownPlayerRelations]]
+        [grep.action :only [sendFarm]]))
 
 (def state (atom {}))
 (def Game window.Game)
 (def Data window.Data)
 
+(declare startBot)
+
 (def cData (js->clj Data :keywordize-keys true))
 
 
-(defn l [data]
-  (.log js/console data))
 
-(defn jl [data]
-  (.log js/console (clj->js data)))
+;================================================
 
-(defn derefjl [data]
-  (.log js/console (clj->js @data)))
+(defn dataModels [data]
+  (-> data :json :backbone :models))
 
-
-(comment (defn init [state Game Data]
-  (let [s state
-        g (js->clj Game)
-        d (js->clj Data)]
-    (swap! s assoc
-           :csrf (get g "csrfToken")
-           :townId  (get g "townId"))
-    (l (clj->js @s))
-    )))
+(defn dataCollection [data]
+  (-> data :json :backbone :collections))
 
 
 
-(def dd {:key "val" :key2 "val2"})
-
-
-
-
-
-(comment (defn parseDat [data]
-  (let [farmCollection (-> data :json :backbone :collections)
-        farmList (filterv #(= (get % :class_name) "FarmTownPlayerRelations") farmCollection)
-        canFarm (filter #(= (-> % :d :relation_status) 1) (-> (get farmList 0) :data))]
-
-    (jl farmCollection)
-     (jl canFarm)
-      ;(mapv (fn [data] (jl  (-> data :d :farm_town_id))) canFarm)
-      (jl (getFarmList canFarm))
-    )))
-
-
-
-
-
-;(initFarm state cData)
-
-;(jl state)
-
-
-;(-> % :d :relation_status)
-
-
-(comment (-> dd (testajj)
-    (testajj)
-    (testajj)
-    (testajj)))
-
-
-
-(defn pp [obj]
+(defn getDevData [state callbeck]
   (do
-    (l (clj->js obj))
-    obj
-    ))
+    (l "dasdasdasdas")
+    ;(.setTimeout js/window (callbeck cData) "30000")))
+    (js/setTimeout (fn [] (callbeck cData)) 100)))
+   ; ))
 
 
 
+(defn applyData[state data]
 
+  (if (< (:init_at state) (.getTime (js/Date.)))
+    (do
+      (doseq [concated (into [] (concat (dataCollection data) (dataModels data)))]
+        (cond
+          (= (:class_name concated) "FarmTownPlayerRelations") (FarmTownPlayerRelations state concated)
 
-
-
-(defn qq [data]
-  (do
-    (l "get data good")
-  (l data)
+          )
+        )
+      (startBot state)
+      )
     )
   )
 
 
 
-
-;(swap! state assoc :key1 "value" :key2 "value3" :key3 {:qq "zz" :mm "hh"})
-
-
-;(swap! state assoc-in [:key3 :qq] "gggggg")
-
-
-;(l (clj->js @a
-
-
-(defn startFarm [state]
-  (do
-  (jl @state)
-    state
-    ))
-
-(defn getFarmList [obj]
-  (loop [ress []
-             ff obj]
-          (if (< (count ff) 1)
-            ress
-            (recur (conj ress (-> (first ff) :d :farm_town_id)) (rest ff))
-
-        )))
-
-(defn getDataOfClass [accData id]
-  (let [collection (-> accData :json :backbone :collections)
-        className (filterv #(= (get % :class_name) id) collection)
-        data (filter #(= (-> % :d :relation_status) 1) (-> (get className 0) :data))]
-    data))
-
-
-(defn initFarm [state data]
-  (let [farmList (getFarmList (getDataOfClass data "FarmTownPlayerRelations"))]
-    (swap! state assoc :farm {:farmList farmList :action_at (.getTime (js/Date.))})
-    state
-    ))
-
-
-
-(defn applyData [state data]
-  (initFarm state data)
-)
-
-(defn initStatic [state]
-  (let [game (js->clj window.Game)]
+(defn initGame [state]
+  (let [game (js->clj window.Game :keywordize-keys true)]
     (swap! state assoc
-           :csrf (get game "csrfToken")
-           :townId  (get game "townId"))
+           :csrf (game :csrfToken)
+           :townId  (game :townId)
+           :kurator (-> game :premium_features :curator)
+           :init_at (dec (.getTime (js/Date.))))
     state
+  ))
 
+(defn initState [state]
+  (let [partialedData (partial applyData state)]
+      (initGame state)
+      (getDevData state partialedData)
   ))
 
 
-(defn initData [state]
-  (applyData state cData))
-
-(defn startBot[]
+(defn goTask [state]
   (do
-    ;(init state Game Data)
-    (-> state
-        (initStatic)
-        (initData)
-
-
-
-
-        (startFarm)
-        ;(getData qq)
-        ;(initFarm Data)
-        (derefjl))
+    (l "ggg")
+  (-> state (sendFarm))
     ))
 
-(document-ready (startBot))
+
+(defn startBot[state]
+  (if (nil? (:init_at @state))
+    (initState state)
+    (goTask state)))
+
+
+
+(document-ready (startBot state))
 
 
 
